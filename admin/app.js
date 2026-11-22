@@ -157,7 +157,7 @@ const login3 = () => {
   const ad = APP == 'admin';
   return `<div class=lg>
     <div class=lh>
-    <div style="font-size:44px">${ad?'🛡️':'💬'}</div><h1>SchoolChat</h1>
+    <img class=lgo src=logo.png alt=""><h1>SchoolChat</h1>
     <div>${ad?'Administrator Portal':'The official class chat of your school.'}</div>
     <ul>${ad?'<li>Create accounts and build schedules</li><li>Read class chats and ban rule-breakers</li><li>Post school-wide announcements</li>':'<li>Chat, announcements and tasks in one place</li><li>Accounts managed by the school admin</li><li>Works on phone and computer</li>'}</ul></div>
     <div class=lr>
@@ -175,7 +175,7 @@ const ss = k => {
 };
 const downView = () => `<div class=lg>
   <div class=lh>
-  <div style="font-size:44px">${APP=='admin'?'🛡️':'💬'}</div><h1>SchoolChat</h1>
+  <img class=lgo src=logo.png alt=""><h1>SchoolChat</h1>
   <div>${APP=='admin'?'Administrator Portal':'The official class chat of your school.'}</div></div>
   <div class=lr>
   <div class=card>
@@ -199,7 +199,7 @@ function setRole(r) {
 }
 const regView = () => `<div class=lg>
   <div class=lh>
-  <div style="font-size:44px">🛡️</div><h1>SchoolChat</h1>
+  <img class=lgo src=logo.png alt=""><h1>SchoolChat</h1>
   <div>Administrator Portal</div>
   <ul>
   <li>First-time setup</li>
@@ -317,7 +317,7 @@ function notes() {
 // ==============================================================
 function shell() {
   const n = notes();
-  return `<div class=top><b>SchoolChat</b><span class=chip>${cu().role} Dashboard</span><input id=sq placeholder="Search..." value="${E(q)}" oninput="q=this.value;render()"><span class=tl onclick="nOpen=!nOpen;render()">🔔<span class=nt> Notification</span>${n.length?` <i>${n.length}</i>`:''}</span></div>
+  return `<div class=top><b><img class=brand-logo src=logo.png alt="">SchoolChat</b><span class=chip>${cu().role} Dashboard</span><input id=sq placeholder="Search..." value="${E(q)}" oninput="q=this.value;render()"><span class=tl onclick="nOpen=!nOpen;render()">🔔<span class=nt> Notification</span>${n.length?` <i>${n.length}</i>`:''}</span></div>
 
     <div class=body>
     <aside>${isA()?'':'<b>MY GROUPS</b>'}${(isA()?[]:mine()).filter(g=>mt(g.name)).map(g=>`<div class="lk ${view.p=='group'&&view.g==g.id?'on':''}" onclick="go('group','${g.id}')">💬 ${E(g.name)}</div>`).join('')||(isA()?'':'<div class=mu>None yet.</div>')}<br>${nv('home','🏠 Dashboard')}${isA()?'':nv('tasks','📝 Tasks')}${nv('anns','📢 Announcements')}${isA()?nv('admin','⚙️ Manage'):''}${nv('profile','👤 Profile')}<button onclick="logout()">🚪 Log Out</button></aside>
