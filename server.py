@@ -20,6 +20,7 @@ db = sqlite3.connect(os.path.join(ROOT, 'schoolchat.db'), check_same_thread=Fals
 db.execute('create table if not exists docs(col text, id text, body text, primary key(col, id))')
 COLS = ['users', 'groups', 'members', 'messages', 'tasks', 'subs', 'anns']
 TOKENS = {}      # session token -> user id
+PAGES = {'admin': 'admin.html', 'portal': 'portal.html'}   # the page each app opens first
 SAMPLE = [False]   # --sample: add demo data when the admin registers
 VERSION = [1]    # bumps on every change so apps only download when something changed
 
@@ -147,7 +148,7 @@ class Handler(BaseHTTPRequestHandler):
         if path == '/admin':
             self.send_response(301); self.send_header('Location', '/admin/'); self.end_headers(); return
         folder, rel = ('admin', path[len('/admin/'):]) if path.startswith('/admin/') else ('portal', path.lstrip('/'))
-        full = os.path.realpath(os.path.join(ROOT, folder, rel or 'index.html'))
+        full = os.path.realpath(os.path.join(ROOT, folder, rel or PAGES[folder]))
         if not full.startswith(os.path.join(ROOT, folder)) or not os.path.isfile(full):
             return self.send(404, b'Not found', 'text/plain')
         self.send(200, open(full, 'rb').read(), mimetypes.guess_type(full)[0] or 'application/octet-stream')

@@ -48,8 +48,9 @@ WHAT THE SERVER ENFORCES (not just hidden buttons)
 
 CODE MAP
   server.py        database, login, permissions, file serving
-  */index.html     the page      */style.css  the design      */app.js  the app logic
-  (portal/ and admin/ share most of their code; the difference is which login each accepts.)
+  admin/admin.html   admin/admin.css   admin/admin.js      the Admin app (page, design, logic)
+  portal/portal.html portal/portal.css portal/portal.js   the Student & Teacher app
+  (the two apps share most of their code; the difference is which login each accepts.)
 
 LIMITS OF THIS PROTOTYPE
   Run it on a school or home network. For the internet it needs HTTPS, a stronger database and
