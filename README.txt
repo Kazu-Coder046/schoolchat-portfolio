@@ -20,7 +20,8 @@ QUICK START
   3. DO NOT double-click index.html. Always open the addresses above in your browser.
   4. FIRST TIME ONLY: on /admin/ you see "Register Admin" (full name, email, password).
      Registration closes after the first admin. Later the admin logs in with EMAIL + PASSWORD.
-  5. The admin creates Student and Teacher accounts (Accounts tab) and gives each person an ID:
+  5. The admin creates Student and Teacher accounts (Manage > Accounts: one page for Students, one for Teachers; no email needed)
+     and gives each person an ID:
         Students -> Student ID + password   (right side of the portal login)
         Teachers -> Faculty ID + password   (left side: tap "Are you a teacher?" and the panel slides over)
   6. With --sample (the launchers use it), demo accounts appear when the admin registers
