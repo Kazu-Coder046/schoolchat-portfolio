@@ -21,8 +21,8 @@ QUICK START
   4. FIRST TIME ONLY: on /admin/ you see "Register Admin" (full name, email, password).
      Registration closes after the first admin. Later the admin logs in with EMAIL + PASSWORD.
   5. The admin creates Student and Teacher accounts (Accounts tab) and gives each person an ID:
-        Students -> Student ID + password   (Student button on the portal login)
-        Teachers -> Faculty ID + password   (Teacher button on the portal login)
+        Students -> Student ID + password   (right side of the portal login)
+        Teachers -> Faculty ID + password   (left side: tap "Are you a teacher?" and the panel slides over)
   6. With --sample (the launchers use it), demo accounts appear when the admin registers
      (password sample123):  Teacher T-001   Students 2022-0001, 2022-0002
   7. Phones on the same Wi-Fi: open http://<your-computer-IP>:8000/
@@ -38,7 +38,7 @@ TROUBLESHOOTING
 
 WHAT THE SERVER ENFORCES (not just hidden buttons)
   - The admin app only accepts the admin (email). The portal only accepts Student and Teacher IDs,
-    and the ID must match the button used (a teacher ID on the Student button is refused).
+    and the ID must match the side used (a teacher ID on the Student form is refused).
   - Only the admin creates accounts, schedules and groups.
   - The admin can read class chats but cannot send messages, and never receives tasks or submissions.
   - The admin can ban a student (button on the student's message, or in Accounts). A banned user is

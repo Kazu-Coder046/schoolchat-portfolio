@@ -155,6 +155,7 @@ function render() {
 // ==============================================================
 const login3 = () => {
   const ad = APP == 'admin';
+  if (!ad) return loginSlider();
   return `<div class=lg>
     <div class=lh>
     <img class=lgo src=logo.png alt=""><h1>SchoolChat</h1>
@@ -166,6 +167,34 @@ const login3 = () => {
     <div id=le class=err>${E(err)}</div><button id=lb class=pr onclick=doLogin()>${ad?'LOGIN':'LOGIN AS '+lr.toUpperCase()}</button>
     <p class=mu>${ad?'Forgot the admin password, or no register screen? Run <b>python server.py --reset-admin</b> on the server computer.':'Accounts are created by the school administrator.'}</p></div></div></div>`
 };
+// --- Student / Teacher login -----------------------------------------------------------
+// Two forms side by side (Teacher on the left, Student on the right) and a cover panel that
+// slides over one of them. Only the class "teacher-mode" on #ls changes; style.css does the
+// animation, so the slide stays smooth and survives a re-render.
+const loginForm = r => {
+  const k = '_'+r;
+  return `<div class="ls-panel ls-${r.toLowerCase()}" role=group aria-label="${r} login">
+    <div class=card>
+    <h2>${r=='Student'?'🎓':'👩‍🏫'} ${r} Login</h2>${NEED?'<p class=err>The school admin has not set up SchoolChat yet.</p>':''}
+    <label for=li${k}>${LBL[r]}</label><input id=li${k} autocomplete=username placeholder="${LBL[r]}" value="${E(ss('sc_li'+k))}">
+    <label for=lp${k}>Password</label><input id=lp${k} type=password autocomplete=current-password onkeydown="if(event.key=='Enter')doLogin()">
+    <div id=le${k} class=err role=alert>${lr==r?E(err):''}</div>
+    <button id=lb${k} class=pr onclick=doLogin()>LOGIN AS ${r.toUpperCase()}</button>
+    <p class=mu>Accounts are created by the school administrator.</p></div></div>`
+};
+const loginSlider = () => `<div id=ls class="ls${lr=='Teacher'?' teacher-mode':''}">
+  <div class=ls-cover>
+    <img class=lgo src=logo.png alt=""><h1>SchoolChat</h1>
+    <div>The official class chat of your school.</div>
+    <ul><li>Chat, announcements and tasks in one place</li><li>Accounts managed by the school admin</li><li>Works on phone and computer</li></ul>
+    <div class=ls-switch>
+      <div class="ls-opt ls-to-teacher"><p>Teachers sign in with a Faculty ID.</p>
+        <button class=ls-toggle onclick="setRole('Teacher')">👩‍🏫 Are you a teacher?</button></div>
+      <div class="ls-opt ls-to-student"><p>Students sign in with a Student ID.</p>
+        <button class=ls-toggle onclick="setRole('Student')">🎓 Are you a student?</button></div>
+    </div>
+  </div>
+  <div class=ls-forms>${loginForm('Teacher')}${loginForm('Student')}</div></div>`;
 const ss = k => {
   try {
     return sessionStorage.getItem(k) || ''
@@ -187,15 +216,16 @@ const downView = () => `<div class=lg>
   <p class=mu>This screen checks again by itself every 2 seconds.</p></div></div></div>`;
 
 function setRole(r) {
+  if (r == lr) return;
   lr = r;
   err = '';
-  ['Student', 'Teacher'].forEach(x => $('tab'+x).classList.toggle('on', x == r));
-  $('lt').textContent = r+' Login';
-  $('ll').textContent = LBL[r];
-  $('li').placeholder = LBL[r];
-  $('lb').textContent = 'LOGIN AS '+r.toUpperCase();
-  $('le').textContent = '';
-  $('li').focus()
+  const box = $('ls');
+  if (!box) return render();
+  box.classList.toggle('teacher-mode', r == 'Teacher');
+  box.querySelectorAll('[id^=le_]').forEach(e => e.textContent = '');
+  // With a mouse/keyboard, move the cursor into the form that was just revealed (not on phones: it would pop the keyboard up).
+  if (matchMedia('(pointer: fine)').matches)
+    setTimeout(() => lr == r && $('li_'+r) && $('li_'+r).focus({preventScroll: true}), 650)
 }
 const regView = () => `<div class=lg>
   <div class=lh>
@@ -227,7 +257,7 @@ function signedIn(r) {
   TOKEN = r.token;
   try {
     localStorage.setItem('sc_tok_'+APP, TOKEN);
-    sessionStorage.removeItem('sc_li')
+    ['sc_li', 'sc_li_Student', 'sc_li_Teacher'].forEach(k => sessionStorage.removeItem(k))
   } catch (_) {}
   err = '';
   NEED = false;
@@ -238,8 +268,9 @@ function signedIn(r) {
 
 async function doLogin() {
   const ad = APP == 'admin',
-    i = $('li').value.trim(),
-    p = $('lp').value;
+    k = ad ? '' : '_'+lr,
+    i = $('li'+k).value.trim(),
+    p = $('lp'+k).value;
   if (!i || !p) {
     err = ad ? 'Enter your email and password.' : 'Enter your '+LBL[lr]+' and password.';
     return render()
@@ -732,8 +763,8 @@ async function sync() {
 setInterval(sync, 2000);
 sync();
 document.addEventListener('input', e => {
-  if (e.target.id == 'li') try {
-    sessionStorage.setItem('sc_li', e.target.value)
+  if (/^li(_|$)/.test(e.target.id)) try {
+    sessionStorage.setItem('sc_'+e.target.id, e.target.value)
   } catch (_) {}
 });
 render();

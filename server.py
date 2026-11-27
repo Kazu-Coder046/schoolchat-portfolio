@@ -234,7 +234,7 @@ class Handler(BaseHTTPRequestHandler):
         for u in found:
             if secrets.compare_digest(hash_pw(pw, u['salt']), u['pw']):
                 if app != 'admin' and role != u['role']:
-                    return self.send(200, {'error': f"This ID belongs to a {u['role']} account. Use the {u['role']} login button."})
+                    return self.send(200, {'error': f"This ID belongs to a {u['role']} account. Tap “Are you a {u['role'].lower()}?” to switch to the {u['role']} login."})
                 if u['status'] != 'Active':
                     return self.send(200, {'error': 'This account has been banned. Contact the administrator.'})
                 token = secrets.token_hex(16); TOKENS[token] = u['id']
