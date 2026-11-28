@@ -46,6 +46,7 @@ WHAT THE SERVER ENFORCES (not just hidden buttons)
     logged out within about 2 seconds and cannot log in until unbanned.
   - Students only get the groups they belong to; chat needs a tap on Join Group Chat first.
   - Teachers only post tasks and announcements in their own classes. Passwords are salted hashes.
+  - A task scheduled for later (Post ▾ > Schedule) is hidden from students by the server until its time.
 
 CODE MAP
   server.py        database, login, permissions, file serving
@@ -55,4 +56,5 @@ CODE MAP
 
 LIMITS OF THIS PROTOTYPE
   Run it on a school or home network. For the internet it needs HTTPS, a stronger database and
-  rate limiting. Files shared in chat are limited to 150 KB.
+  rate limiting. Files shared in chat or tasks are limited to 150 KB. Big photos (png/jpg/webp) are shrunk
+  automatically; other big files are refused.

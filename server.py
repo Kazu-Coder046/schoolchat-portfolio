@@ -23,6 +23,7 @@ TOKENS = {}      # session token -> user id
 PAGES = {'admin': 'admin.html', 'portal': 'portal.html'}   # the page each app opens first
 SAMPLE = [False]   # --sample: add demo data when the admin registers
 VERSION = [1]    # bumps on every change so apps only download when something changed
+SCHED = [int(time.time() * 1000)]   # last time we looked for scheduled tasks that just went live
 
 
 # ---------------------------------------------------------------- database helpers
@@ -56,6 +57,15 @@ def make_user(sid, name, email, role, pw, sec=''):
 def joined_groups(u):
     return {m['g'] for m in rows('members') if m['u'] == u['id'] and m.get('j') is not False}
 
+def check_scheduled():
+    """A scheduled task has no 'save' event when its time arrives, so bump the version then."""
+    now = int(time.time() * 1000)
+    if now - SCHED[0] < 1000:
+        return
+    last, SCHED[0] = SCHED[0], now
+    if any(last < t.get('pub', 0) <= now for t in rows('tasks')):
+        VERSION[0] += 1
+
 def snapshot(u):
     """Only the data this user is allowed to see (the server does the filtering)."""
     admin = u['role'] == 'Admin'
@@ -71,7 +81,8 @@ def snapshot(u):
         near = {m['u'] for m in members if m['g'] in gids} | {g['teacher'] for g in groups} | {u['id']}
         shown = [x for x in users if x['id'] in near]
     shown = [{k: v for k, v in x.items() if k not in ('pw', 'salt') and (admin or k not in ('email',))} for x in shown]
-    tasks = [] if admin else [t for t in rows('tasks') if t['g'] in joined]
+    now = int(time.time() * 1000)             # a task scheduled for later is hidden from students until then
+    tasks = [] if admin else [t for t in rows('tasks') if t['g'] in joined and (u['role'] == 'Teacher' or t.get('pub', 0) <= now)]
     tids = {t['id'] for t in tasks}
     subs = [] if admin else [s for s in rows('subs') if s['t'] in tids and
                              (u['role'] == 'Teacher' or s['u'] == u['id'])]
@@ -112,7 +123,8 @@ def can_write(u, col, d, old):
         if not t:
             return False
         if role == 'Student':
-            return old is None and d.get('u') == u['id'] and t['g'] in joined_groups(u)
+            return old is None and d.get('u') == u['id'] and t['g'] in joined_groups(u) and \
+                t.get('pub', 0) <= int(time.time() * 1000)
         return role == 'Teacher' and t['by'] == u['id'] and bool(old) and \
             {k: v for k, v in d.items() if k != 'score'} == {k: v for k, v in old.items() if k != 'score'}
     return False
@@ -136,6 +148,7 @@ class Handler(BaseHTTPRequestHandler):
         if url.path == '/api/sync':
             q = parse_qs(url.query)
             with LOCK:
+                check_scheduled()
                 u = self.user(q.get('token', [''])[0])
                 if not u or u['status'] != 'Active':
                     return self.send(401, {'error': 'session ended'})
